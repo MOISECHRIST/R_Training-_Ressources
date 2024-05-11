@@ -194,3 +194,33 @@ while(i<=maximum){
 ```
 
 ## Manipulation de données
+
+```{r}
+dir()
+```
+
+### Charger les données d'un fichiers CSV
+
+```{r}
+sars_cov=read.csv("SARS-Cov2-PCRdata.csv", sep=";", dec=".", stringsAsFactors = T)
+```
+
+```{r}
+summary(sars_cov)
+```
+
+```{r}
+summary(my_df)
+```
+
+```{r}
+dir()
+```
+
+```{r}
+metadata=read.csv("metadata.csv", stringsAsFactors = T)
+```
+
+```{r}
+View(metadata)
+```
