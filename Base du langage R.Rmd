@@ -1,0 +1,196 @@
+---
+autor: MEKA MOISE C.J
+title: "Formation Introductrice su R"
+output: html_notebook
+---
+
+# *COURS D'INTRODUCTION A R*
+
+<https://github.com/MOISECHRIST/R_Training-_Ressources.git>
+
+## Types de données
+
+### Numeric
+
+```{r}
+x<-12 
+```
+
+```{r}
+mode(x)
+```
+
+```{r}
+y=7
+```
+
+```{r}
+mode(y)
+```
+
+```{r}
+x+y
+```
+
+### Character
+
+```{r}
+chaine="Ma chaine de caractère"
+```
+
+```{r}
+mode(chaine)
+```
+
+```{r}
+!(x>y)
+```
+
+```{r}
+x^3
+```
+
+### Logique
+
+```{r}
+x=TRUE
+y=FALSE
+x=T
+```
+
+### Vecteur
+
+```{r}
+v=c(1,2,3,4)
+```
+
+```{r}
+v[c(-1,-4)]
+```
+
+```{r}
+v*c(2,3)
+```
+
+### Matrice
+
+```{r}
+m=matrix(c(2,3,4,6),nrow = 2, ncol = 2, byrow = TRUE)
+m
+```
+
+```{r}
+rowSums(m)
+```
+
+```{r}
+m=matrix(c(2,3,4,6),nrow = 2, ncol = 2, byrow = FALSE)
+m
+```
+
+```{r}
+colSums(m)
+```
+
+### Facteur
+
+```{r}
+sexe=factor(c("M","F","F"))
+```
+
+```{r}
+sexe
+```
+
+```{r}
+my_list<- list(age=c(12,15,17,22),sexe=factor(c("F","M","M","F")),note=c(2.5,3,2.02,3.55))
+```
+
+```{r}
+my_list
+```
+
+### DataFrame
+
+```{r}
+my_df=data.frame(my_list)
+```
+
+```{r}
+View(my_df)
+```
+
+```{r}
+View(my_df[1,])
+```
+
+## Commandes de base
+
+```{r}
+dir()
+```
+
+```{r}
+getwd()
+```
+
+```{r}
+setwd("Nouveau chemin")
+```
+
+```{r}
+help(setwd)
+```
+
+```{r}
+?setwd
+```
+
+```{r}
+rm(x)
+```
+
+```{r}
+ls()
+```
+
+## Instruction conditionnelles 
+
+```{r}
+age=20
+if(age>18){
+  print("Vous etes majeur")
+}else{
+  print("Vous etes mineur")
+}
+```
+
+```{r}
+age=20
+sexe="F"
+if(age>18){
+  print("Vous etes majeur")
+  if(sexe=="F"){
+    print("Doit aller en mariage")
+  }
+}
+```
+
+## Boucles
+
+```{r}
+for(i in c(1:4)){
+  print(my_df[i,1]/my_df[i,3])
+}
+```
+
+```{r}
+maximum=4
+i=1
+while(i<=maximum){
+  print(my_df[i,1]/my_df[i,3])
+  i=i+1
+}
+```
+
+## Manipulation de données
