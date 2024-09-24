@@ -1,0 +1,1017 @@
+---
+title: "Apprentissage R"
+output:
+  html_notebook: default
+  pdf_document: default
+autor: MEKA MOISE CHRISTIAN JUNIOR
+---
+
+# [INTRODUCTION A LA STATISTIQUE AVEC R]{.underline}
+
+# [I- Variables]{.underline}
+
+------------------------------------------------------------------------
+
+## Variables simples
+
+```{r}
+x=2
+y=6
+2*x-y
+```
+
+## Vecteurs
+
+```{r}
+T=c(160, 180, 165, 190, 170, 140, 155, 167, 170, 169)
+P=c(80, 75, 70, 85, 83, 87, 70, 89, 75, 85)
+S=c("H","F", "F", "H", "H", "F", "F", "F", "H", "H")
+C=c("bleue","noir","gris","bleue", "bleue", "gris", "bleue", "noir", "noir", "gris")
+```
+
+## Matrices
+
+```{r}
+df_mat=cbind(T,P)
+df_mat
+```
+
+```{r}
+#NB: Les element d'une matrice sont de même type
+cbind(df_mat, S, C)
+```
+
+## DataFrame
+
+```{r}
+df=data.frame(T, P, S, C)
+head(df)
+```
+
+# [II- Analyse descriptive univaries]{.underline}
+
+------------------------------------------------------------------------
+
+### Lecture des données
+
+```{r}
+#Lecture des données dans le fichier DBM1.csv
+data=read.csv("Ressources/DBM1.csv", sep = ";")
+
+#Ou utiliser la commande et ne plus convertir en facteur les variables categorielles
+data=read.csv("Ressources/DBM1.csv", sep=";", stringsAsFactors = TRUE)
+
+#Conversion en facteur des variables categorielles
+data$S=as.factor(data$S)
+data$C=as.factor(data$C)
+
+head(data)
+```
+
+### Parametres de position
+
+#### 1- Moyenne
+
+```{r}
+mean(data$T)
+```
+
+```{r}
+mean(data$P)
+```
+
+#### 2- Mediane
+
+```{r}
+median(data$T)
+```
+
+```{r}
+median(data$F)
+```
+
+#### 3- Quantiles
+
+```{r}
+quantile(data$T)
+```
+
+```{r}
+quantile(data$F)
+```
+
+```{r}
+quantile(data$P, probs = 0.8)
+```
+
+#### 4- Valeurs extremes (min, max)
+
+```{r}
+min(data$F)
+```
+
+```{r}
+max(data$P)
+```
+
+#### 5- Mode
+
+```{r}
+library(conflicted)
+#install.packages("DescTools")
+library(DescTools)
+```
+
+```{r}
+Mode(data$S, na.rm = TRUE)
+```
+
+```{r}
+Mode(data$C)
+```
+
+#### 6- Resume descriptif
+
+```{r}
+summary(data)
+```
+
+```{r}
+#install.packages("psych")
+library(psych)
+```
+
+```{r}
+describe(data[,c("T", "P", "F")])
+```
+
+```{r}
+Desc(data)
+```
+
+### Parametre de dispersion
+
+#### 1- Variance
+
+```{r}
+var(data$T)
+```
+
+```{r}
+var(data$P)
+```
+
+```{r}
+var(data$F)
+```
+
+#### 2- Ecart Type
+
+```{r}
+sd(data$T)
+```
+
+```{r}
+sd(data$P)
+```
+
+```{r}
+sd(data$F)
+```
+
+#### 3- Etendue
+
+```{r}
+max(data$T)-min(data$T)
+```
+
+```{r}
+max(data$P)-min(data$P)
+```
+
+```{r}
+max(data$F)-min(data$F)
+```
+
+### Visualisation des données
+
+```{r}
+#install.packages("ggplot2")
+library(ggplot2)
+```
+
+#### 1- Variables Numeriques
+
+```{r}
+ggplot(data, aes(x=F))+geom_histogram(bins = length(unique(data$F)), col="black",  fill = "lightgray")+
+  labs(x = "Nombre de frere", y = "Frequence", title="Distribution suivant le nombre de freres")
+```
+
+```{r}
+ggplot(data, aes(x=F))+geom_boxplot( fill = "lightgray")+
+  labs(x = "Nombre de freres", title="Boxplot du nombre de freres des individus")
+```
+
+```{r}
+ggplot(data, aes(x=P))+geom_boxplot( fill = "lightgray")+
+  labs(x = "Poids", title="Boxplot du poids des individus")
+```
+
+```{r}
+ggplot(data, aes(x=T))+geom_boxplot( fill = "lightgray")+
+  labs(x = "Taille", title="Boxplot de la taille des individus")
+```
+
+```{r}
+ggplot(data, aes(x=T))+geom_histogram(aes(y=..density..),fill="lightgray", col="black")+
+  geom_density(linewidth=0.55, col="black")+
+  labs(x = "Taille", y = "Frequence", title="Distribution suivant la taille")
+```
+
+#### 2- Variables Categorielles
+
+```{r}
+ggplot(data, aes(x=S))+geom_bar(fill="chocolate")+
+  labs(x = "Sexe", y = "Frequence", title="Distribution suivant le sexe")
+```
+
+```{r}
+tab_C=table(data$C)
+
+#On recupere les lables 
+labs_C=rownames(tab_C)
+
+labs_C=paste(labs_C, round(100*tab_C/sum(tab_C), 2), sep=" (")
+labs_C=paste(labs_C, "", sep="%)")
+pie(tab_C, 
+    col=c("#999999", "#E69F00", "#56B4E9","#E9967A","#FFA07A"),
+    main="Distribution de la couleur des yeux")
+
+legend("topright", labs_C, cex=0.8,fill=rainbow(length(tab_C)))
+```
+
+```{r}
+#install.packages("plotrix")
+library(plotrix)
+```
+
+```{r}
+pie3D(tab_C, explode=0.08,
+      border = "white",
+      height = 0.25
+      ,main="Distribution de la couleur des yeux")
+legend("topright", labs_C, cex=0.5,fill=rainbow(length(tab_C)), 
+       ncol = 1)
+```
+
+# [III- Analyses descriptives bivaries]{.underline}
+
+------------------------------------------------------------------------
+
+### 1- Quanti-Quanti
+
+```{r}
+#Covariance avec la methode de pearson
+print("pearson")
+cov(data[,c("T","P","F")], method ="pearson" )
+#Covariance avec la methode de kendall
+print("kendall")
+cov(data[,c("T","P","F")], method ="kendall" )
+#Covariance avec la methode de spearman
+print("spearman")
+cov(data[,c("T","P","F")], method ="spearman" )
+```
+
+```{r}
+#Correlation avec la methode de pearson
+print("pearson")
+cor(data[,c("T","P","F")], method ="pearson" )
+#Correlation avec la methode de kendall
+print("kendall")
+cor(data[,c("T","P","F")], method ="kendall" )
+#Correlation avec la methode de spearman
+print("spearman")
+cor(data[,c("T","P","F")], method ="spearman" )
+```
+
+```{r}
+library(heatmaply)
+```
+
+```{r}
+#Visualisation de la matrice de correlation
+heatmaply(cor(data[,c("T","P","F")], method ="spearman" ), 
+          main = "Matrice de correlation")
+```
+
+```{r}
+#Visualisation de la matrice de covariance
+heatmaply(cov(data[,c("T","P","F")], method ="spearman" ), 
+          main = "Matrice de covariance")
+```
+
+```{r}
+#Nuage de points
+model=lm(T~P, data)
+coefs=coef(model)
+ggplot(data, aes(x=P, y=T))+geom_point(col="blue")+
+  geom_abline(intercept = coefs[1], slope=coefs[2], linewidth=1)+
+  labs(title =)+
+  labs(title="Taille en fonction du poids", x="Taille",
+      y="Poids")
+```
+
+```{r}
+#Nuage de points
+ggplot(data, aes(x=P, y=F))+geom_point(col="blue")+
+  geom_smooth(method = "lm")+
+  labs(title="Nombre de frere en fonction du poids", x="Poids",
+      y="Nombre de frere")
+```
+
+```{r}
+#Nuage de points
+ggplot(data, aes(x=T, y=F))+geom_point(col="blue")+
+  geom_smooth(method = "lm")+
+  labs(title="Nombre de frere en fonction de la taille", x="Taille",
+      y="Nombre de frere")
+```
+
+```{r}
+#install.packages("GGally")
+library(GGally)
+```
+
+```{r}
+ggcorr(data[,c("P","T","F")])
+```
+
+### 2-Quali-Quali
+
+```{r}
+table(data$S,data$C)
+```
+
+```{r}
+ggplot(data, aes(x=C))+geom_bar(aes(fill=S), position = "dodge")+
+  scale_fill_brewer(palette = "Pastel2")+
+  labs(title = "Distribution des individus suivant le sexe et la couleur des yeux",
+       x="Couleur des yeux", y="Frequence",fill="sexe")
+```
+
+```{r}
+library(grid)
+library(vcd)
+```
+
+```{r}
+#Diagramme en mosaic
+mosaicplot(~ C + S , 
+           data = data, 
+           color = TRUE,
+           las=1,
+           main = "Diagramme en mosaic du sexe et de la couleur des yeux")
+```
+
+```{r}
+#Matrice de contengence
+ggplot(data, aes(y=S,x=C))+geom_bin_2d()+
+  labs(title = "Distribution des individus suivant le sexe et la couleur des yeux",
+       x="Couleur des yeux", y="sexe")
+```
+
+```{r}
+#Parametres sur les variables qualitatives
+ass=assocstats(table(data$S, data$C))
+print(ifelse(ass$cramer<=0.3,
+             paste("v cramer:",round(ass$cramer,2),"Le sexe et faiblement associé à la couleur des yeux", sep=" "),
+             ifelse(ass$cramer>0.3 & ass$cramer<=0.6,paste("v cramer:",round(ass$cramer,2),"Le sexe et moyennement associé à la couleur des yeux", sep = " "),
+              paste("v cramer:",round(ass$cramer,2),"Le sexe et moyennement associé à la couleur des yeux", sep = " "))))
+```
+
+### 3- Quali-Quanti
+
+```{r}
+ggplot(data, aes(x=P, y=S))+geom_violin(aes(fill=S))+
+  labs(x = "Poids", y="Sexe", fill="Sexe",
+       title="Violinplot du poids des individus suivant le sexe")+
+  scale_fill_brewer(palette = "Pastel1")
+```
+
+```{r}
+ggplot(data, aes(y=P, x=C))+geom_boxplot(aes(fill=C),outlier.colour = "red",)+
+  labs(y = "Poids", x="Couleur des yeux", fill="Couleur des yeux",
+       title="Boxplot de la taille des individus suivant la couleur des yeux")+
+  scale_fill_brewer(palette = "Pastel2")
+```
+
+```{r}
+ggpairs(data[,c("P","T","F")])
+```
+
+```{r}
+ggally_density(data[,c("P","T","S")],aes(x=P, y=T, col=S))+labs(x="Poids", y="Taille", col="Sexe")
+
+```
+
+```{r}
+ggplot(data, aes(P, T))+stat_density_2d(aes(fill=S), geom = "polygon")+labs(x="Poids", y="Taille", col="Sexe")
+```
+
+# [IV- Statistiques Inférentielles]{.underline}
+
+------------------------------------------------------------------------
+
+![](Ressources/directional-and-non-directional.png)
+
+On rejete H0 losque p-value \< α (5% par defaut)
+
+### Test **d'Homogénéité des Variances**
+
+Pour tester l'homogeneite des variances (égalité des variances), de nombreux tests peuvent être utilisés notament :
+
+-   **Test F** : Comparez les variances de deux groupes. Les données doivent être normalement distribuées.
+
+-   **Test de Bartlett** : Comparer les variances de deux groupes ou plus. Les données doivent être normalement distribuées.
+
+-   **Le test de Levene** : Une alternative robuste au test de Bartlett qui est moins sensible aux écarts de normalité.
+
+-   **Test de Fligner-Killeen** : un test non paramétrique qui est très robuste contre les écarts de normalité.
+
+**NB :** Il est à noter que le **test de Levene** est le plus couramment utilisé dans la littérature.
+
+#### 1- Test F
+
+```{r}
+#install.packages("tidyverse")
+#install.packages("conflicted")
+#install.packages("rstatix")
+library(conflicted)
+library(tidyverse)
+library(rstatix)
+library(ggpubr)
+```
+
+```{r}
+#On visualise la normalité de la variable
+ggqqplot(data, x="P")+labs(title="qqplot du poids de l'ensemble des individus")
+ggqqplot(data, x="P", facet.by = "S")+labs(title="qqplot du poids de chaque sexe")
+```
+
+Les points étant presque tous situés autour de la droite de reference, nous pouvons supposer une normalité pour la variable poids. Cette normalité est vérifié par le test de shapiro wilk.
+
+```{r}
+data %>% group_by(S) %>% shapiro_test(P)
+```
+
+**NB :** Si la taille de votre échantillon est supérieure à 50, le tracé QQ normal est préféré car avec des échantillons plus grands, le test de Shapiro-Wilk devient très sensible même à un écart mineur par rapport à la normalité.
+
+```{r}
+var.test(P~S, data)
+```
+
+La P-Value \> 5% indique que l'on accepte l'hypothèse H0 et donc que les variances des poids des deux sexes (h et f) sont égales.
+
+#### 2- Comparer plusieurs écarts
+
+Cette section décrit comment comparer plusieurs variances dans R à l'aide des tests de Bartlett, Levene ou Fligner-Killeen.
+
+**Hypothèses statistiques** . Pour tous ces tests qui suivent, l'hypothèse nulle est que les variances de toutes les populations sont égales, l'hypothèse alternative est qu'au moins deux d'entre elles diffèrent. Par conséquent, des valeurs p inférieures à 0,05 suggèrent que les variances sont significativement différentes et que l'hypothèse d'homogénéité de la variance a été violée.
+
+##### 2.1- test de Bartlett
+
+```{r}
+bartlett.test(P~S, data=data)
+```
+
+##### 2.2- Test de Levene
+
+```{r}
+LeveneTest(P~S, data=data)
+```
+
+##### 2.3- Test de Fligner-Killeen
+
+```{r}
+fligner.test(P~S, data=data)
+```
+
+### T test
+
+Ce test permet de comparer les moyennes de deux groupes ou d'un groupe avec une valeur de reference connue
+
+#### 1- t test à un échantillon
+
+Dans cette situation nous avons un echantillon {x1, x2, ...., xn} et on veut tester si la moyenne de cette echantillons est egale, superieur ou inferieur a une valeur connue.
+
+On affirme que le poids moyen de la population est de 65kg. On utilise un t test pour verifier cette hypothese.
+
+H0: mu=65
+
+H1: mu\<\>65
+
+```{r}
+mean(data$P)
+res<-t.test(data$P, mu = 65)
+res
+```
+
+On observe que la p-value \> 5% donc on a bien le poids moyen de la population égale à 65 avec 5% de chance de se tromper.
+
+```{r}
+res<-t_test(data, P~1, mu=65)
+# Create the box-plot
+bxp <- ggboxplot(
+  data$P, width = 0.5, add = c("mean", "jitter"), 
+  ylab = "Weight (g)", xlab = FALSE
+  )
+# Add significance levels
+bxp + labs(subtitle = get_test_label(res, detailed = TRUE))
+```
+
+De même on peut tester si la taille moyenne de la population est superieure a 150cm
+
+H0: mu=150
+
+H1: mu \> 150
+
+```{r}
+mean(data$T)
+t.test(data$T, mu=150, alternative = "greater")
+```
+
+On observe que la p-value \< 5%. Donc avec un risque de 5% de se tromper la taille de la population est superieur a 150cm
+
+En utilisant cette fois le package rstatix on peut aussi tester pareillement si le nombre moyen de frere est inferieur a 3
+
+H0: mu=3
+
+H1: mu \< 3
+
+```{r}
+stat.test=data %>% t_test(F~1, mu=3, alternative = "less", detailed = TRUE)
+stat.test
+```
+
+On observe ici qu'avec une confiance de 95% que le nombre de frère est bien inferieur à 3.
+
+```{r}
+ggdensity(data, x = "F", rug = TRUE, fill = "lightgray") +
+  stat_central_tendency(type = "mean", color = "red", linetype = "dashed") +
+  geom_vline(xintercept = 3 , color = "blue", linetype = "dashed") + 
+  labs(subtitle = get_test_label(stat.test,  detailed = TRUE), x="Nombre de frere")
+```
+
+#### 2- t test pour un échantillon indépendant
+
+Le test t pour les écahntillons indépendants permet comme son nom l'indique de comparer les moyennes de deux échantillons biens différents. Il est aussi appelé t test pour un ecahntillon apparié.
+
+Prérequis :
+
+-   Une variable dependante catégorielle
+
+-   Une variable indépendante numérique
+
+-   Indépendance entre les observations de chaque catégorie
+
+-   Données normalement distribuées
+
+-   Vérifier l'égalité des variances (en fonction des résultats du test de levene mettre **var.equal = TRUE/FALSE**)
+
+```{r}
+data %>% group_by(S) %>% 
+  get_summary_stats(P, type = "mean_sd")
+```
+
+On peut supposer que le poids des hommes est superieur a celui des femme
+
+H0: mu(h)=mu(f)
+
+H1: mu \> mu(f)
+
+c'est a dire tester si
+
+H0: mu(h)-mu(f)=0
+
+H1: mu - mu(f)\>0
+
+```{r}
+#var.equal = TRUE car les variances sont égales d'après le test de levene
+t.test(P~S, data=data, alternative="less",
+       var.equal = TRUE)
+```
+
+Donc on peut affirmer avec 95% de chance qu'en moyenne les hommes pesent plus que les femmes
+
+```{r}
+res<-t_test(data, P~S, alternative="less", var.equal = TRUE)
+res <- res %>% add_xy_position(x = "S")
+# Create the box-plot
+bxp <- ggboxplot(
+  data, x="S", y="P", width = 0.5, add = c("mean"), 
+  ylab = "Poids (kg)", xlab = "Sexe"
+  )
+# Add significance levels
+bxp + 
+  stat_pvalue_manual(res, tip.length = 0) +
+  labs(subtitle = get_test_label(res, detailed = TRUE), title = "Boxplot du poids en fonction du sexe")
+```
+
+On peut évaluer cette différence en utilisant le d de cohens.
+
+#### 3- t test par pair
+
+Ici on veut comparer les moyennes de deux mesures effectués sur des mêmes individus. Par exemple lorsqu'on veut comparer les mesures de tension arterielles des patients avant et après un traitement X.
+
+```{r}
+#install.packages("datarium")
+library(datarium)
+```
+
+```{r}
+data("mice2", package = "datarium")
+head(mice2, 3)
+```
+
+```{r}
+#Transformation des données en une colonne pour la classe et une pour les données mesurées
+mice2.long <- mice2 %>%
+  gather(key = "group", value = "weight", before, after)
+head(mice2.long)
+```
+
+```{r}
+#Resumé des données 
+mice2.long %>%
+  group_by(group) %>%
+  get_summary_stats(weight, type = "mean_sd")
+```
+
+```{r}
+#Execution du test
+res<-t_test(weight~group, data=mice2.long, paired = TRUE, detailed = TRUE)
+res
+```
+
+On peut conclure que le poids est significativement différent avant et après le traitement car la p-value est \< 5%.
+
+On peut évaluer cette différence en utilisant le d de cohens comme suit :
+
+```{r}
+cohens_d(weight~group, data=mice2.long, paired = TRUE)
+```
+
+Donc l'écart entres les poids moyennes avant et après est d'environ 8.08
+
+```{r}
+bxp <- ggpaired(mice2.long, x = "group", y = "weight", 
+         order = c("before", "after"),
+         ylab = "Weight", xlab = "Groups")
+
+res <- res %>% add_xy_position(x = "group")
+bxp + 
+  stat_pvalue_manual(res, tip.length = 0) +
+  labs(subtitle = get_test_label(res, detailed= TRUE))
+```
+
+### Test binomial
+
+Ce test d'applique a des variables binomiales telles que le sexe (homme et femme). Il permet de comparer une proportion d'un échantillon (exemple la proportion des hommes) avec une valeur de reference.
+
+Exemple :
+
+On suppose qu'il ya autant d'homme que de femme dans la population
+
+H0 : P(h)=P(f)
+
+H1 : P(h)\<\>P(f)
+
+```{r}
+table(data$S)
+binom.test(table(data$S))
+```
+
+p-value \< 5% on rejete l'hypothèse nulle et donc la proportion des hommes est significatvement différente de celle des femmes
+
+### Test de khi 2
+
+Le test du Khi-deux est un [test d'hypothèse](https://datatab.fr/tutorial/hypothesis-testing) utilisé pour déterminer s'il existe une relation entre deux [variables catégorielles](https://datatab.fr/tutorial/level-of-measurement).
+
+```{r}
+data$PR<-cut(data$P, breaks=5)
+ggplot(data, aes(x=PR, fill=S))+geom_bar(position = "dodge")
+```
+
+On pourrait supposer une liaison entre le sexe et la tranche de poids
+
+```{r}
+khi_test<-chisq.test(x=data$S, y=data$PR)
+print("Distribution observe")
+khi_test$observed
+print("Distribution attendue")
+khi_test$expected
+khi_test
+```
+
+**NB :** Les distributions théoriques (attendue) doivent toutes être supérieures à 5
+
+### Test U de Mann-Whitney
+
+Le test U de Mann-Whitney peut être utilisé pour vérifier s'il existe une différence entre deux échantillons (groupes), et les données ne doivent pas nécessairement être distribuées normalement. Pour pouvoir calculer un test U de Mann-Whitney, il faut disposer de deux échantillons aléatoires indépendants présentant au moins des caractéristiques à échelle ordinale.
+
+H0 : Il n'existe pas de différence entre les groupes (du point de vu des tendances centrales)
+
+```{r}
+group_by(data,S) %>%
+  summarise(
+    count = n(),
+    median = median(P, na.rm = TRUE),
+    IQR = IQR(P, na.rm = TRUE))
+```
+
+```{r}
+wilcox.test(P~S, data = data)
+```
+
+### Test de Wilcoxon
+
+Le test de Wilcoxon (test du rang de signe de Wilcoxon) vérifie si les valeurs moyennes de deux groupes dépendants diffèrent significativement l'une de l'autre.
+
+Le test de Wilcoxon est un [test non paramétrique](https://datatab.fr/tutorial/parametric-and-non-parametric-tests) et est donc soumis à beaucoup moins de conditions prélables que son homologue paramétrique, le [test t pour échantillons dépendants](https://datatab.fr/tutorial/paired-t-test). Par conséquent, dès que les conditions limites du test t pour échantillons dépendants ne sont plus remplies, le test de Wilcoxon est utilisé.
+
+**Conditions du test de Wilcoxon**
+
+Le test de Wilcoxon étant un test non paramétrique, il n'est pas nécessaire que les données soient normalement distribuées. Toutefois, pour calculer un test de Wilcoxon, les échantillons doivent être dépendants. Les échantillons dépendants sont présents, par exemple, lorsque les données sont obtenues à partir de mesures répétées ou lorsqu'il s'agit de paires dites naturelles.
+
+-   **Mesure répétée :** une caractéristique d'une personne, par exemple son poids, a été mesurée à deux moments différents.
+
+-   **Couples naturels :** les valeurs ne doivent pas nécessairement provenir de la même personne, mais de personnes qui vont ensemble, par exemple avocat/client, épouse/mari et psychologue/patient. Bien entendu, il ne s'agit pas nécessairement de personnes.
+
+-   **Indépendance :** le test de Wilcoxon suppose l'indépendance, c'est-à-dire que les observations appariées sont tirées au hasard et de manière indépendante.
+
+En outre, la forme de la distribution des différences entre les deux échantillons dépendants doit être approximativement symétrique.
+
+Si les données ne sont pas disponibles par paires, le [test U de Mann-Whitney](https://datatab.fr/tutorial/mann-whitney-u-test) est utilisé à la place du test de Wilcoxon.
+
+```{r}
+# Load the data from datarium package
+data("genderweight", package = "datarium")
+# Show a sample of the data by group
+set.seed(123)
+genderweight %>% sample_n_by(group, size = 2)
+```
+
+```{r}
+genderweight %>%
+  group_by(group) %>%
+  get_summary_stats(weight, type = "median_iqr")
+```
+
+```{r}
+bxp <- ggboxplot(
+  genderweight, x = "group", y = "weight", 
+  ylab = "Weight", xlab = "Groups", add = c("jitter") 
+  )
+bxp
+```
+
+```{r}
+stat.test <- genderweight %>% 
+  wilcox_test(weight ~ group) %>%
+  add_significance()
+stat.test
+```
+
+```{r}
+stat.test <- stat.test %>% add_xy_position(x = "group")
+bxp + 
+  stat_pvalue_manual(stat.test, tip.length = 0) +
+  labs(subtitle = get_test_label(stat.test, detailed = TRUE))
+```
+
+### Anova
+
+Le test **ANOVA** (ou **Analyse de Variance** en francais) est utilisé pour comparer la moyenne de plusieurs groupes. Le terme ANOVA est un peu trompeur. Bien que le nom de la technique fasse référence aux variances, l'objectif principal de l'ANOVA est d'étudier les différences de moyennes.
+
+#### 1- Anova a un facteur
+
+Une extension du test t pour échantillons indépendants pour comparer les moyennes dans une situation où il y a plus de deux groupes. Il s'agit du cas le plus simple de test ANOVA où les données sont organisées en plusieurs groupes selon une seule variable de regroupement (également appelée variable factorielle). D'autres synonymes sont : *ANOVA à 1 voie* , *ANOVA à un facteur* et *ANOVA inter-sujets* 
+
+```{r}
+data("PlantGrowth")
+PlantGrowth <- PlantGrowth %>%
+  reorder_levels(group, order = c("ctrl", "trt1", "trt2"))
+```
+
+```{r}
+PlantGrowth %>%
+  group_by(group) %>%
+  get_summary_stats(weight, type = "mean_sd")
+```
+
+```{r}
+ggboxplot(PlantGrowth, x = "group", y = "weight")
+```
+
+Les valeurs aberrantes peuvent être facilement identifiées à l'aide des méthodes de diagramme en boîte, implémentées dans la fonction R `identify_outliers()`du package **rstatix**.
+
+```{r}
+PlantGrowth %>% 
+  group_by(group) %>%
+  identify_outliers(weight)
+```
+
+Vérification de l'hypothèse de normalité.\
+Elle peut être fait soit :
+
+-   A partir des tests de normalité dans chaque groupe
+
+-   Ou a partir des résidus du modèle ANOVA
+
+```{r}
+# Construction du modèle linéaire
+model  <- lm(weight ~ group, data = PlantGrowth)
+# QQ Plot
+ggqqplot(residuals(model))
+```
+
+Les valeurs sont proches de la droite de reférence, cela suppose une normalité des résidus
+
+H0 : La variable est normalement distribué
+
+```{r}
+#Test de normalité de shapiro wilk 
+shapiro_test(residuals(model))
+```
+
+Dans le cas de la normalité de chaque groupe on aurait
+
+```{r}
+ggqqplot(data=PlantGrowth, x="weight", facet.by = "group")
+```
+
+```{r}
+PlantGrowth %>% group_by(group) %>%
+  shapiro_test(weight)
+```
+
+La P-value ici est \> 5% donc le poids suit une distribution normale.
+
+```{r}
+res.aov <-PlantGrowth %>% anova_test(weight ~ group)
+```
+
+#### **2- Tests post-hoc**
+
+Une ANOVA unidirectionnelle significative est généralement suivie de tests post-hoc de Tukey pour effectuer plusieurs comparaisons par paires entre les groupes. Fonction de la touche R : `tukey_hsd()`[rstatix].
+
+```{r}
+pwc <- PlantGrowth %>% tukey_hsd(weight ~ group)
+```
+
+```{r}
+#Visualisation 
+pwc <- pwc %>% add_xy_position(x = "group")
+ggboxplot(PlantGrowth, x = "group", y = "weight") +
+  stat_pvalue_manual(pwc, hide.ns = TRUE) +
+  labs(
+    subtitle = get_test_label(res.aov, detailed = TRUE),
+    caption = get_pwc_label(pwc)
+    )
+```
+
+NB : Le test ANOVA unidirectionnel classique nécessite une hypothèse de variances égales pour tous les groupes. Dans le cas contraire, il est conseillé d'utiliser :
+
+-   Le **test unidirectionnel de Welch** est une alternative à l'ANOVA unidirectionnelle standard dans les situations où l'homogénéité de la variance ne peut pas être supposée (c'est-à-dire que *le test de Levene* est significatif).
+
+-   Dans ce cas, le test post hoc **de Games-Howell** ou **les tests t par paires** (sans hypothèse de variances égales) peuvent être utilisés pour comparer toutes les combinaisons possibles de différences de groupe.
+
+```{r}
+#Dans ce cas voici les fonctions à utiliser
+#welch_anova_test()
+#games_howell_test()
+```
+
+#### 3- Anova à deux facteurs
+
+Utilisée pour évaluer simultanément l'effet de deux variables de regroupement différentes sur une variable de résultat continue. D'autres synonymes sont : *deux plans factoriels* , *anova factorielle* ou *ANOVA bidirectionnelle entre sujets* .
+
+```{r}
+data("jobsatisfaction", package = "datarium")
+jobsatisfaction %>%
+  group_by(gender, education_level) %>%
+  get_summary_stats(score, type = "mean_sd")
+```
+
+```{r}
+ggplot(jobsatisfaction)+geom_boxplot(aes(x=gender, y=score, fill=education_level))
+```
+
+```{r}
+model  <- lm(score ~ gender*education_level,
+             data = jobsatisfaction)
+ggqqplot(residuals(model))
+```
+
+```{r}
+shapiro_test(residuals(model))
+```
+
+```{r}
+jobsatisfaction %>%
+  group_by(gender, education_level) %>%
+  shapiro_test(score)
+```
+
+```{r}
+ggqqplot(jobsatisfaction, "score", ggtheme = theme_bw()) +
+  facet_grid(gender ~ education_level)
+```
+
+```{r}
+jobsatisfaction %>% levene_test(score ~ gender*education_level)
+```
+
+```{r}
+res.aov <- jobsatisfaction %>% anova_test(score ~ gender * education_level)
+res.aov
+```
+
+#### **4- Tests post-hoc**
+
+Une **interaction bidirectionnelle significative** indique que l'impact d'un facteur (par exemple, le niveau_d'éducation) sur la variable de résultat (par exemple, le score de satisfaction au travail) dépend du niveau de l'autre facteur (par exemple, le sexe) (et vice versa). Ainsi, vous pouvez décomposer une interaction bidirectionnelle significative en :
+
+-   **Effet principal simple** : exécuter un modèle unidirectionnel de la première variable à chaque niveau de la deuxième variable,
+
+-   **Comparaisons simples par paires** : si l'effet principal simple est significatif, effectuez plusieurs comparaisons par paires pour déterminer quels groupes sont différents.
+
+Pour une **interaction bidirectionnelle non significative** , vous devez déterminer si vous avez des **effets principaux** statistiquement significatifs à partir du résultat de l'ANOVA. Un effet principal significatif peut être suivi par des comparaisons par paires entre les groupes.
+
+```{r}
+model <- lm(score ~ gender * education_level, data = jobsatisfaction)
+jobsatisfaction %>%
+  group_by(gender) %>%
+  anova_test(score ~ education_level, error = model)
+```
+
+L'effet principal simple du « niveau_d'éducation » sur le score de satisfaction au travail était statistiquement significatif tant pour les hommes que pour les femmes (p \< 0,0001).
+
+En d'autres termes, il existe une différence statistiquement significative dans le score moyen de satisfaction au travail entre **les hommes** ayant fait des études scolaires, collégiales ou universitaires, F(2, 52) = 132, p \< 0,0001. La même conclusion est vraie pour **les femmes** , F(2, 52) = 62,8, p \< 0,0001.
+
+**NB :** Il convient de noter que la signification statistique des analyses simples de l'effet principal a été acceptée à un niveau alpha ajusté par Bonferroni de 0,025. Cela correspond au niveau actuel auquel vous déclarez la signification statistique (c'est-à-dire p \< 0,05) divisé par le nombre d'effets principaux simples que vous calculez (c'est-à-dire 2).
+
+# V- Analyse multivaries
+
+------------------------------------------------------------------------
+
+## ACP : Analyse en Composantes Principales
+
+```{r}
+
+```
+
+## AFC : Analyse Factorielle de Correspondance
+
+```{r}
+
+```
+
+## ACM : Analyse Factorielle de Correspondance Multiple
+
+```{r}
+
+```
+
+## CAH : Classification Ascendante Hierarchique
+
+```{r}
+
+```
+
+# VI- Documentation
+
+------------------------------------------------------------------------
+
+<https://datatab.fr/tutorial/get-started>
+
+<https://3mmarand.github.io/comp4biosci/>
+
+<https://epirhandbook.com/en/index.html>
+
+<https://openintro-ims.netlify.app/>
+
+[Realiser l'ANOVA avec R](https://www.datanovia.com/en/lessons/anova-in-r/)
+
+<https://larmarange.github.io/analyse-R/graphiques-bivaries-ggplot2.html>
+
+<https://www.datanovia.com/en/lessons/how-to-do-a-t-test-in-r-calculation-and-reporting/>
+
+<https://www.umr-lastig.fr/paul-chapron/resources/cours_site/galerie-de-graphiques-avec-ggplot.html>
+
+<https://www.datanovia.com/en/fr/lessons/test-dhomogeneite-des-variances-dans-r/>
+
+<https://jokergoo.github.io/ComplexHeatmap-reference/book/introduction.html>
+
+<http://www.sthda.com/english/wiki/descriptive-statistics-and-graphics>
+
+<http://www.sthda.com/english/wiki/ggpubr-create-easily-publication-ready-plots>

@@ -154,7 +154,7 @@ rm(x)
 ls()
 ```
 
-## Instruction conditionnelles 
+## Instruction conditionnelles
 
 ```{r}
 age=20
